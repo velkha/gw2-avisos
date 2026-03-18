@@ -6,8 +6,8 @@ on:
     - cron: "0 10 * * 2,4,0"
 
     # Todos los días a las 18:01 y 18:07 UTC
-    - cron: "1 17 * * *"
-    - cron: "7 17 * * *"
+    - cron: "2 18 * * *"
+    - cron: "7 18 * * *"
 
   workflow_dispatch:
 
@@ -24,7 +24,7 @@ jobs:
           week=$(date -u +%V)
 
           # Si son las 18:01 o 18:07 UTC, mandar siempre el mensaje del jueves
-          if [ "$hour" = "18" ] then
+          if [ "$hour" = "18" ]; then
             content='@everyone mensaje fijo del jueves'
 
           # Programación normal de martes/jueves/domingo a las 10:00 UTC
