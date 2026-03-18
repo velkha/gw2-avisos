@@ -1,9 +1,13 @@
 name: Aviso Discord
 
 on:
-  schedule:  
-    - cron: "55 14 * * 3"
-    - cron: "55 15 * * 3"
+  schedule:
+    - cron: "5 16 * * 3"
+    - cron: "10 16 * * 3"
+    - cron: "15 16 * * 3"
+    - cron: "5 15 * * 3"
+    - cron: "10 15 * * 3"
+    - cron: "15 15 * * 3"
   workflow_dispatch:
 
 jobs:
@@ -24,14 +28,18 @@ jobs:
 
           should_send = (
               event_name == "workflow_dispatch" or
-              (now.weekday() in (1, 3) and now.hour == 9)
+              (
+                  now.weekday() == 2 and
+                  now.hour == 17 and
+                  now.minute in (5, 10, 15)
+              )
           )
 
           with open("/tmp/should_send.txt", "w") as f:
               f.write("true" if should_send else "false")
 
           print(f"Evento: {event_name}")
-          print(f"Hora actual en Madrid: {now.isoformat()}")
+          print(f"Hora Madrid: {now.isoformat()}")
           print(f"Enviar: {should_send}")
           PY
 
@@ -44,5 +52,8 @@ jobs:
         run: |
           curl -i -H "Content-Type: application/json" \
                -X POST \
-               -d '{"content": "@everyone tenemos raid hoy a las 21:30", "allowed_mentions": { "parse": ["everyone"] }}' \
+               -d '{
+                 "content": "@everyone tenemos raid hoy a las 21:30",
+                 "allowed_mentions": { "parse": ["everyone"] }
+               }' \
                "$DISCORD_WEBHOOK_URL"
