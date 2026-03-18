@@ -2,7 +2,7 @@ name: Aviso Discord
 
 on:
   schedule:
-    # Invierno (España UTC+1): 16:16-16:22, 17:16-17:22, 18:16-18:22, sin :20
+    # Invierno (UTC+1)
     - cron: "16 15 * * 3"
     - cron: "17 15 * * 3"
     - cron: "18 15 * * 3"
@@ -24,11 +24,11 @@ on:
     - cron: "21 17 * * 3"
     - cron: "22 17 * * 3"
 
-    # Verano (España UTC+2): mismas horas locales, una hora menos en UTC
-    - cron: "26 14 * * 3"
-    - cron: "27 14 * * 3"
-    - cron: "28 14 * * 3"
-    - cron: "29 14 * * 3"
+    # Verano (UTC+2)
+    - cron: "16 14 * * 3"
+    - cron: "17 14 * * 3"
+    - cron: "18 14 * * 3"
+    - cron: "19 14 * * 3"
     - cron: "21 14 * * 3"
     - cron: "22 14 * * 3"
 
@@ -54,8 +54,8 @@ jobs:
               event_name == "workflow_dispatch" or
               (
                   now.weekday() == 2 and
-                  now.hour == 17 and
-                  now.minute in (5, 10, 15)
+                  now.minute in (16, 17, 18, 19, 21, 22) and
+                  now.hour in (16, 17, 18)
               )
           )
 
