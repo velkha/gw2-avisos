@@ -44,5 +44,5 @@ jobs:
         run: |
           curl -i -H "Content-Type: application/json" \
                -X POST \
-               -d '{"content":"Buenos días. Recordatorio automático del canal."}' \
+               -d '{"content": "@everyone tenemos raid hoy a las 21:30", "allowed_mentions": { "parse": ["everyone"] }}' \
                "$DISCORD_WEBHOOK_URL"
