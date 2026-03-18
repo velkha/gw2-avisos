@@ -2,7 +2,6 @@ name: Aviso Discord
 
 on:
   schedule:
-    # Invierno (UTC+1)
     - cron: "16 15 * * 3"
     - cron: "17 15 * * 3"
     - cron: "18 15 * * 3"
@@ -24,53 +23,20 @@ on:
     - cron: "21 17 * * 3"
     - cron: "22 17 * * 3"
 
-    # Verano (UTC+2)
-    - cron: "26 14 * * 3"
-    - cron: "27 14 * * 3"
-    - cron: "28 14 * * 3"
-    - cron: "29 14 * * 3"
-    - cron: "21 14 * * 3"
-    - cron: "22 14 * * 3"
+    - cron: "25 14 * * 3"
+    - cron: "25 15 * * 3"
+    - cron: "25 16 * * 3"
+    - cron: "25 17 * * 3"
+    - cron: "25 18 * * 3"
+    - cron: "25 19 * * 3"
 
   workflow_dispatch:
 
 jobs:
   send-discord-message:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Decidir si toca enviar en horario de Madrid
-        id: gate
-        run: |
-          python - <<'PY'
-          from datetime import datetime
-          from zoneinfo import ZoneInfo
-          import os
-
-          event_name = os.environ.get("GITHUB_EVENT_NAME", "")
-          now = datetime.now(ZoneInfo("Europe/Madrid"))
-
-          should_send = (
-              event_name == "workflow_dispatch" or
-              (
-                  now.weekday() == 2 and
-                  now.minute in (16, 17, 18, 19, 21, 22) and
-                  now.hour in (16, 17, 18)
-              )
-          )
-
-          with open("/tmp/should_send.txt", "w") as f:
-              f.write("true" if should_send else "false")
-
-          print(f"Evento: {event_name}")
-          print(f"Hora Madrid: {now.isoformat()}")
-          print(f"Enviar: {should_send}")
-          PY
-
-          echo "should_send=$(cat /tmp/should_send.txt)" >> $GITHUB_OUTPUT
-
       - name: Enviar mensaje a Discord
-        if: steps.gate.outputs.should_send == 'true'
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
