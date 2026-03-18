@@ -2,30 +2,12 @@ name: Aviso Discord
 
 on:
   schedule:
-    - cron: "17 15 * * 3"
-    - cron: "22 15 * * 3"
-    - cron: "27 15 * * 3"
-    - cron: "32 15 * * 3"
+    # Martes, jueves y domingos a las 10:00 UTC
+    - cron: "0 10 * * 2,4,0"
 
-    - cron: "17 16 * * 3"
-    - cron: "22 16 * * 3"
-    - cron: "27 16 * * 3"
-    - cron: "32 16 * * 3"
-
-    - cron: "17 17 * * 3"
-    - cron: "22 17 * * 3"
-    - cron: "27 17 * * 3"
-    - cron: "32 17 * * 3"
-
-    - cron: "17 18 * * 3"
-    - cron: "22 18 * * 3"
-    - cron: "27 18 * * 3"
-    - cron: "32 18 * * 3"
-
-    - cron: "17 19 * * 3"
-    - cron: "22 19 * * 3"
-    - cron: "27 19 * * 3"
-    - cron: "32 19 * * 3"
+    # Todos los días a las 18:01 y 18:07 UTC
+    - cron: "1 17 * * *"
+    - cron: "7 17 * * *"
 
   workflow_dispatch:
 
@@ -33,14 +15,45 @@ jobs:
   send-discord-message:
     runs-on: ubuntu-latest
     steps:
+      - name: Elegir mensaje
+        id: msg
+        run: |
+          weekday=$(date -u +%w)
+          hour=$(date -u +%H)
+          minute=$(date -u +%M)
+          week=$(date -u +%V)
+
+          # Si son las 18:01 o 18:07 UTC, mandar siempre el mensaje del jueves
+          if [ "$hour" = "18" ] && { [ "$minute" = "01" ] || [ "$minute" = "07" ]; }; then
+            content='@everyone mensaje fijo del jueves'
+
+          # Programación normal de martes/jueves/domingo a las 10:00 UTC
+          elif [ "$weekday" = "2" ]; then
+            if [ $((10#$week % 2)) -eq 0 ]; then
+              content='@everyone mensaje A del martes'
+            else
+              content='@everyone mensaje B del martes'
+            fi
+          elif [ "$weekday" = "4" ]; then
+            content='@everyone mensaje fijo del jueves'
+          else
+            content='@everyone mensaje fijo del domingo'
+          fi
+
+          {
+            echo 'payload<<EOF'
+            printf '{\n'
+            printf '  "content": "%s",\n' "$content"
+            printf '  "allowed_mentions": { "parse": ["everyone"] }\n'
+            printf '}\n'
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
       - name: Enviar mensaje a Discord
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
           curl -i -H "Content-Type: application/json" \
                -X POST \
-               -d '{
-                 "content": "@everyone tenemos raid hoy a las 21:30",
-                 "allowed_mentions": { "parse": ["everyone"] }
-               }' \
+               -d '${{ steps.msg.outputs.payload }}' \
                "$DISCORD_WEBHOOK_URL"
