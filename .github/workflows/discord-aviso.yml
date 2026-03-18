@@ -3,7 +3,7 @@ name: Aviso Discord
 on:
   schedule:
     # Martes, jueves y domingos a las 10:00 UTC
-    - cron: "0 10 * * 2,4,0"
+    - cron: "0 10 * * 1,2,3,4,0"
 
     # Todos los días a las 18:01 y 18:07 UTC
     - cron: "2 18 * * *"
@@ -37,7 +37,7 @@ jobs:
           elif [ "$weekday" = "4" ]; then
             content='@everyone mensaje fijo del jueves'
           else
-            content='@everyone mensaje fijo del domingo'
+            content='@everyone mensaje fijo extra'
           fi
 
           {
